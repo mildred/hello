@@ -2,5 +2,7 @@ language: go
 sudo: required
 services:
   - docker
+script:
+  - GOOS=linux go build -o app .
 after_script:
   - docker build -t eunomie/hello .
