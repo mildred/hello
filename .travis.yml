@@ -2,7 +2,5 @@ language: go
 sudo: required
 services:
   - docker
-before_deploy:
+after_script:
   - docker build -t eunomie/hello .
-deploy:
-  - echo deployed
