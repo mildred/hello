@@ -10,7 +10,7 @@ import (
 )
 
 func HelloWorld(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello World!!!\n"))
+	w.Write([]byte("Hello World!\n"))
 
 	dburl := fmt.Sprintf("%s://%s:%s@%s:%s/%s", os.Getenv("DB_ENGINE"), os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
 	fmt.Fprintf(w, "Connect to %s\n", dburl)
