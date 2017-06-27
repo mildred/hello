@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	_ "github.com/lib/pq"
 	"io/ioutil"
@@ -18,15 +19,6 @@ func HelloWorld(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "os.Args: %#v\n", os.Args)
 
-	addrs, err := net.DefaultResolver.LookupAddr(ctx, "consul.service.consul")
-	if err != nil {
-		fmt.Fprintf(w, "Consul DNS: consul.service.consul A error: %s\n", err)
-	} else {
-		for _, addr := range addrs {
-			fmt.Fprintf(w, "Consul DNS: consul.service.consul A %s\n", addr)
-		}
-	}
-
 	cname, srvs, err := net.DefaultResolver.LookupSRV(ctx, "consul", "tcp", "service.consul")
 	if err != nil {
 		fmt.Fprintf(w, "Consul DNS: _consul._tcp.service.consul SRV error: %s\n", err)
@@ -34,6 +26,17 @@ func HelloWorld(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Consul DNS: _consul._tcp.service.consul CNAME %v\n", cname)
 		for _, srv := range srvs {
 			fmt.Fprintf(w, "Consul DNS: _consul._tcp.service.consul SRV %v\n", srv)
+		}
+	}
+
+	service_name := os.Getenv("SQSC_SERVICE_NAME")
+	cname, srvs, err = net.DefaultResolver.LookupSRV(ctx, service_name, "tcp", "service.consul")
+	if err != nil {
+		fmt.Fprintf(w, "Consul DNS: %s._tcp.service.consul SRV error: %s\n", service_name, err)
+	} else {
+		fmt.Fprintf(w, "Consul DNS: %s._tcp.service.consul CNAME %v\n", service_name, cname)
+		for _, srv := range srvs {
+			fmt.Fprintf(w, "Consul DNS: %s._tcp.service.consul SRV %v\n", service_name, srv)
 		}
 	}
 
@@ -49,6 +52,15 @@ func HelloWorld(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Consul: Error %s\n", err)
 		} else {
 			fmt.Fprintf(w, "Consul services:\n%s\n", string(content))
+			services := map[string]json.RawMessage{}
+			err = json.Unmarshal(content, &services)
+			if err != nil {
+				fmt.Fprintf(w, "Consul: JSON Error %s\n", err)
+			} else {
+				for service := range services {
+					fmt.Fprintf(w, "Consul service: %s\n", service)
+				}
+			}
 		}
 	}
 	fmt.Fprintf(w, "\n\n")
