@@ -65,7 +65,8 @@ func HelloWorld(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprintf(w, "\n\n")
 
-	dburl := fmt.Sprintf("%s://%s:%s@%s:%s/%s", os.Getenv("DB_ENGINE"), os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
+	//host := os.Getenv("DB_HOST")
+	dburl := fmt.Sprintf("%s://%s:%s@%s:%s/%s", os.Getenv("DB_ENGINE"), os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), "db.service.consul", os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
 	fmt.Fprintf(w, "Connect to %s\n", dburl)
 	db, err := sql.Open("postgres", dburl)
 	if err != nil {
