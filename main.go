@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	_ "github.com/lib/pq"
+	"io"
 	"io/ioutil"
 	"log"
 	"net"
@@ -94,6 +95,15 @@ func HelloWorld(w http.ResponseWriter, r *http.Request) {
 	db_res.Scan(&count)
 
 	fmt.Fprintf(w, "count: %#v\n", count)
+
+	fmt.Fprintf(w, "GET http://squarescale-diag.service.consul\n")
+	res, err = http.Get("http://squarescale-diag.service.consul")
+	if err != nil {
+		fmt.Fprintf(w, "Error: %s\n", err)
+	} else {
+		io.Copy(w, res.Body)
+		res.Body.Close()
+	}
 
 	fmt.Fprintf(w, "\nEnvironment:\n")
 	for _, env := range os.Environ() {
