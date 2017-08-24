@@ -66,35 +66,10 @@ func HelloWorld(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprintf(w, "\n\n")
 
-	//host := os.Getenv("DB_HOST")
-	dburl := fmt.Sprintf("%s://%s:%s@%s:%s/%s", os.Getenv("DB_ENGINE"), os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), "db.service.consul", os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
-	fmt.Fprintf(w, "Connect to %s\n", dburl)
-	db, err := sql.Open("postgres", dburl)
+	err = TestDatabase(w)
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s\n", err)
-		return
 	}
-	defer db.Close()
-	fmt.Fprintf(w, "Connected.\n")
-
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS counter (count integer);")
-	if err != nil {
-		fmt.Fprintf(w, "Error: %s\n", err)
-		return
-	}
-
-	_, err = db.Exec("INSERT INTO counter SELECT count(*) FROM counter")
-	if err != nil {
-		fmt.Fprintf(w, "Error: %s\n", err)
-		return
-	}
-
-	db_res := db.QueryRow("SELECT count(*) FROM counter")
-
-	var count int
-	db_res.Scan(&count)
-
-	fmt.Fprintf(w, "count: %#v\n", count)
 
 	fmt.Fprintf(w, "GET http://squarescale-diag.service.consul\n")
 	res, err = http.Get("http://squarescale-diag.service.consul")
@@ -117,6 +92,36 @@ func HelloWorld(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintf(w, "Generated on %s\n", hostname)
+}
+
+func TestDatabase(w http.ResponseWriter) error {
+	//host := os.Getenv("DB_HOST")
+	dburl := fmt.Sprintf("%s://%s:%s@%s:%s/%s", os.Getenv("DB_ENGINE"), os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), "db.service.consul", os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
+	fmt.Fprintf(w, "Connect to %s\n", dburl)
+	db, err := sql.Open("postgres", dburl)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	fmt.Fprintf(w, "Connected.\n")
+
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS counter (count integer);")
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("INSERT INTO counter SELECT count(*) FROM counter")
+	if err != nil {
+		return err
+	}
+
+	db_res := db.QueryRow("SELECT count(*) FROM counter")
+
+	var count int
+	db_res.Scan(&count)
+
+	fmt.Fprintf(w, "count: %#v\n", count)
+	return nil
 }
 
 func main() {
