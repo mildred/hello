@@ -71,8 +71,14 @@ func HelloWorld(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Error: %s\n", err)
 	}
 
-	fmt.Fprintf(w, "GET http://squarescale-diag.service.consul\n")
-	res, err = http.Get("http://squarescale-diag.service.consul")
+	fmt.Fprintf(w, "\n\n")
+	service2_name := os.Getenv("SERVICE2_NAME")
+	if service2_name == "" {
+		service2_name = "squarescale-diag"
+	}
+
+	fmt.Fprintf(w, "GET http://%s.service.consul\n", service2_name)
+	res, err = http.Get("http://" + service2_name + ".service.consul")
 	if err != nil {
 		fmt.Fprintf(w, "Error: %s\n", err)
 	} else {
