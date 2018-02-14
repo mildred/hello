@@ -4,14 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"flag"
 	"fmt"
-	_ "github.com/lib/pq"
 	"io"
 	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 func HelloWorld(w http.ResponseWriter, r *http.Request) {
@@ -131,6 +133,7 @@ func TestDatabase(w http.ResponseWriter) error {
 }
 
 func main() {
+	flag.Parse()
 	fmt.Println("hello world")
 	http.HandleFunc("/", HelloWorld)
 	log.Fatal(http.ListenAndServe(":80", nil))
