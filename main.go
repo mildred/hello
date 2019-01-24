@@ -20,7 +20,7 @@ func HelloWorld(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	w.Write([]byte("Hello World!\n"))
 
-	fmt.Fprintf(w, "Version: %v\n", 1)
+	fmt.Fprintf(w, "Version: %v\n", 2)
 	fmt.Fprintf(w, "os.Args: %#v\n", os.Args)
 
 	cname, srvs, err := net.DefaultResolver.LookupSRV(ctx, "consul", "tcp", "service.consul")
